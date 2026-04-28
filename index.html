@@ -77,15 +77,18 @@ input[type=text]:focus { border-color: var(--purple); }
 .card-footer { display: flex; justify-content: flex-end; margin-top: 0.75rem; }
 .players-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; }
 .panel-title { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
-#players-list { display: flex; flex-direction: column; gap: 8px; }
-.player-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); }
+#players-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.player-row { padding: 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); }
 .player-row.is-bingo { border-color: var(--green); background: var(--green-light); }
 .player-row.is-me { border-color: var(--purple); }
+.player-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .player-name { font-size: 13px; flex: 1; }
-.player-count { font-size: 11px; color: var(--muted); background: var(--hover); border-radius: 20px; padding: 2px 8px; }
-.player-row.is-bingo .player-count { background: rgba(29,158,117,0.15); color: var(--green-dark); }
 .bingo-pill { font-size: 10px; font-weight: 500; font-family: 'Syne', sans-serif; background: var(--green); color: white; border-radius: 20px; padding: 2px 8px; }
 .me-pill { font-size: 10px; color: var(--purple-dark); background: var(--purple-light); border-radius: 20px; padding: 2px 8px; }
+.mini-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.mini-cell { height: 18px; border-radius: 3px; background: var(--border); border: 1px solid transparent; }
+.mini-cell.marked { background: var(--green); }
+.mini-cell.free { background: var(--purple); opacity: 0.5; }
 .empty-msg { font-size: 12px; color: var(--muted); text-align: center; padding: 1rem 0; }
 .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -278,14 +281,21 @@ function renderPlayers(data) {
   list.innerHTML = '';
   players.forEach(p => {
     const isMe = p.name === currentPlayer;
-    const count = p.marked.reduce((s,v)=>s+v,0);
+    const card = makeCard(p.name);
     const row = document.createElement('div');
     row.className = 'player-row' + (p.bingo?' is-bingo':'') + (isMe?' is-me':'');
+    const miniCells = card.map((term, i) => {
+      const isFree = term === 'FREE';
+      const isMarked = p.marked[i];
+      return '<div class="mini-cell' + (isFree?' free':(isMarked?' marked':'')) + '" title="' + (isFree?'FREE':esc(term)) + '"></div>';
+    }).join('');
     row.innerHTML =
-      '<span class="player-name">' + esc(p.name) + '</span>' +
-      (isMe ? '<span class="me-pill">du</span>' : '') +
-      (p.bingo ? '<span class="bingo-pill">BINGO</span>' : '') +
-      '<span class="player-count">' + count + '/25</span>';
+      '<div class="player-header">' +
+        '<span class="player-name">' + esc(p.name) + '</span>' +
+        (isMe ? '<span class="me-pill">du</span>' : '') +
+        (p.bingo ? '<span class="bingo-pill">BINGO</span>' : '') +
+      '</div>' +
+      '<div class="mini-grid">' + miniCells + '</div>';
     list.appendChild(row);
   });
 }
