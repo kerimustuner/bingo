@@ -385,30 +385,19 @@ function hide(id) { document.getElementById(id).style.display = 'none'; }
 
 // Init
 (function() {
-  const cfg = loadConfig();
-  if (cfg) {
-    try { initFirebase(cfg); } catch(e) {}
-    document.getElementById('cfg-apiKey').value = cfg.apiKey || '';
-    document.getElementById('cfg-authDomain').value = cfg.authDomain || '';
-    document.getElementById('cfg-dbUrl').value = cfg.databaseURL || '';
-    document.getElementById('cfg-projectId').value = cfg.projectId || '';
-    const last = localStorage.getItem('bingo_last_player');
-    if (last) document.getElementById('player-name').value = last;
-    showNameBox();
-  } else {
-    // Pre-configured for Deufol
-    const cfg = {
-      apiKey: "AIzaSyCCQpuceLvLAhjyHu6qMrsB_ntxA-2zCys",
-      authDomain: "bingo---dtm.firebaseapp.com",
-      databaseURL: "https://bingo---dtm-default-rtdb.firebaseio.com",
-      projectId: "bingo---dtm"
-    };
-    localStorage.setItem('bingo_fb_cfg', JSON.stringify(cfg));
-    try { initFirebase(cfg); } catch(e) {}
-    showNameBox();
-    return;
-  }
+  const cfg = {
+    apiKey: "AIzaSyCCQpuceLvLAhjyHu6qMrsB_ntxA-2zCys",
+    authDomain: "bingo---dtm.firebaseapp.com",
+    databaseURL: "https://bingo---dtm-default-rtdb.firebaseio.com",
+    projectId: "bingo---dtm"
+  };
+  try { initFirebase(cfg); } catch(e) { alert('Firebase Fehler: ' + e.message); }
+  const last = localStorage.getItem('bingo_last_player');
+  if (last) document.getElementById('player-name').value = last;
+  hide('config-box');
+  show('name-box');
   document.getElementById('player-name').addEventListener('keydown', e => { if(e.key==='Enter') joinGame(); });
+  setTimeout(() => document.getElementById('player-name').focus(), 50);
 })();
 </script>
 </body>
